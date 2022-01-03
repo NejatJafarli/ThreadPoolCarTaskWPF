@@ -1,0 +1,177 @@
+﻿<Window x:Class="VendingMachineWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VendingMachineWPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="650" Width="1150" MinHeight="450" MinWidth="800"
+         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+     TextElement.FontWeight="Regular"
+     TextElement.FontSize="13"
+     TextOptions.TextFormattingMode="Ideal"
+     TextOptions.TextRenderingMode="Auto"
+     Background="Transparent"
+     FontFamily="{DynamicResource MaterialDesignFont}"
+         WindowStyle="None"  BorderThickness="0" AllowsTransparency="True" MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        ResizeMode="CanResizeWithGrip"
+         >
+    <Window.Resources>
+        <Style TargetType="ToggleButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid >
+                                <Border Width="45" Height="20" Background="LightGray" CornerRadius="10" Margin="5,0"></Border>
+                                <Border x:Name="button" Height="25" Width="25" CornerRadius="12.5" HorizontalAlignment="Left"  ></Border>
+                            </Grid>
+                            <ContentPresenter x:Name="content" Margin="10,0,0,0" Content="{TemplateBinding Content}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Resources>
+                            <Storyboard x:Key="right">
+                                <ThicknessAnimation Storyboard.TargetProperty="Margin" Storyboard.TargetName="button" Duration="0:0:0.4" From="0,0,0,0" To="28,0,0,0" >
+                                    <ThicknessAnimation.EasingFunction>
+                                        <CircleEase EasingMode="EaseOut"/>
+                                    </ThicknessAnimation.EasingFunction>
+                                </ThicknessAnimation>
+                            </Storyboard>
+                            <Storyboard x:Key="left">
+                                <ThicknessAnimation Storyboard.TargetProperty="Margin" Storyboard.TargetName="button" Duration="0:0:0.4" From="28,0,0,0" To="0,0,0,0" >
+                                    <ThicknessAnimation.EasingFunction>
+                                        <CircleEase EasingMode="EaseOut"/>
+                                    </ThicknessAnimation.EasingFunction>
+                                </ThicknessAnimation>
+                            </Storyboard>
+                        </ControlTemplate.Resources>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="false">
+                                <Trigger.ExitActions>
+                                    <RemoveStoryboard BeginStoryboardName="leftt"></RemoveStoryboard>
+                                    <BeginStoryboard Storyboard="{StaticResource right}" x:Name="rightt" ></BeginStoryboard>
+                                </Trigger.ExitActions>
+                                <Setter TargetName="button" Property="Background" Value="#757575"></Setter>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Trigger.ExitActions>
+                                    <RemoveStoryboard BeginStoryboardName="rightt"></RemoveStoryboard>
+                                    <BeginStoryboard Storyboard="{StaticResource left}" x:Name="leftt" ></BeginStoryboard>
+                                </Trigger.ExitActions>
+                                <Setter TargetName="button" Property="Background" Value="#20BF55"></Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+
+    <Border Background="#E2E2E2" BorderBrush="#CA1016" BorderThickness="4" CornerRadius="25" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border Background="#CA1016" Width="170" CornerRadius="15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Margin="0 10 0 0" Foreground="White" FontSize="25" FontFamily="Cascadia Code"  HorizontalAlignment="Center" VerticalAlignment="Center" >
+                        <StackPanel Orientation="Horizontal">
+                        <Image Source="https://img.icons8.com/plasticine/30/000000/car--v1.png"></Image>
+                            <TextBlock Name="WindowName">TURBO AZ</TextBlock>
+                        </StackPanel>
+                    </TextBlock>
+                    <ListView Margin="0 110 0 0" Foreground="LightGray" Grid.Row="1"
+                              ScrollViewer.CanContentScroll="False"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListViewItem>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Home" Width="30" Height="30"  VerticalAlignment="Center" ></materialDesign:PackIcon>
+                                <TextBlock Name="HomeTxt" Background="Transparent" Text="Home" Margin="10 0 0 0" FontSize="20"  VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </ListViewItem>
+                        <ListViewItem IsSelected="True" Selector.IsSelected="True" >
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="basket" Width="30" Height="30"  VerticalAlignment="Center" ></materialDesign:PackIcon>
+                                <TextBlock Name="ProdTxt" Background="Transparent" Text="Products" Margin="10 0 0 0" FontSize="20"  VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Wallet" Width="30" Height="30"  VerticalAlignment="Center" ></materialDesign:PackIcon>
+                                <TextBlock Background="Transparent" Text="Wallet" Margin="10 0 0 0" FontSize="20"  VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Person" Width="30" Height="30"  VerticalAlignment="Center" ></materialDesign:PackIcon>
+                                <TextBlock Background="Transparent" Text="User Profile" Margin="10 0 0 0" FontSize="20"  VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </ListViewItem>
+                        <ListViewItem>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Settings" Width="30" Height="30"  VerticalAlignment="Center" ></materialDesign:PackIcon>
+                                <TextBlock Background="Transparent" Text="Settings" Margin="10 0 0 0" FontSize="20"  VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </ListViewItem>
+                    </ListView>
+                    <ListView  Foreground="LightGray" Grid.Row="2" Margin="0 0 0 30" >
+                        <ListViewItem PreviewMouseLeftButtonDown="ListViewItem_PreviewMouseLeftButtonDown" >
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Foreground="LightGray" Kind="Logout" Width="30" Height="30"  VerticalAlignment="Center" ></materialDesign:PackIcon>
+                                <TextBlock Foreground="LightGray" Background="Transparent" Text="Log Out" Margin="10 0 0 0" FontSize="20"  VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </ListViewItem>
+                    </ListView>
+                </Grid>
+            </Border>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="0.1*"/>
+                    </Grid.RowDefinitions>
+                    <ScrollViewer Name="Scroll">
+                        <ListBox Name="LB" Margin="0 5 0 0" ItemsSource="{Binding ProductsUC,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" HorizontalAlignment="Center">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </ScrollViewer>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >Single</TextBlock>
+                        <TextBlock Grid.Column="2" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >Multi</TextBlock>
+                        <ToggleButton Name="TGbtn" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"></ToggleButton>
+                        <TextBlock Grid.Column="3" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >Time</TextBlock>
+                        <TextBlock Name="TimerTxt" Grid.Column="4" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >00:00:00</TextBlock>
+                        <Button Grid.Column="5" Margin="10" FontSize="23" FontFamily="Cascadia Code" Click="Button_Click" >Start</Button>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+
+
+    </Border>
+</Window>
