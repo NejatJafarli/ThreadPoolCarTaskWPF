@@ -46,14 +46,16 @@ namespace VendingMachineWPF
 
         public ObservableCollection<ProductUC> ProductsUC { get; set; } = new ObservableCollection<ProductUC>();
 
+        public DispatcherTimer timer { get; set; } = new DispatcherTimer();
+        public Stopwatch Watch { get; set; } = new Stopwatch();
         public MyThreadClass MyTC { get; set; }
         public MainWindow()
         {
             InitializeComponent();
 
             DataContext = this;
-
-
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += Timer_Tick;
         }
         private void EscHandle(object sender, KeyEventArgs e)
         {
@@ -72,54 +74,54 @@ namespace VendingMachineWPF
                 temp.Window.Width = 220;
                 temp.Window.Height = 280;
                 ProductsUC.Add(temp);
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 7; i++)
                     Scroll.LineDown();
             });
         }
-        public Stopwatch Watch { get; set; } = new Stopwatch();
+        public int TimerCounter { get; set; } = 0;
+        public Action<object> MyAct { get; set; }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             ProductsUC.Clear();
-
-            Watch.Start();
-
+            var path = $@"C:\Users\{Environment.UserName}\Source\Repos\ThreadPoolCarTaskWPF\VendingMachineWPF\JsonFiles";
+            var size = Directory.GetFiles(path).Length;
             if (TGbtn.IsChecked.Value)
             {
-                DispatcherTimer timer = new DispatcherTimer();
-                timer.Interval = TimeSpan.FromSeconds(1);
-                timer.Tick += Timer_Tick;
                 timer.Start();
-
-                var path = $@"C:\Users\{Environment.UserName}\Source\Repos\ThreadPoolCarTaskWPF\VendingMachineWPF\JsonFiles";
-
-                var size = Directory.GetFiles(path).Length;
-
+                Watch.Start();
                 for (int i = 1; i <= size; i++)
                 {
-                    TimerTxt.Text = $"{Watch.Elapsed.Hours}:{Watch.Elapsed.Minutes}:{Watch.Elapsed.Seconds}";
-
                     var text = File.ReadAllText($@"{path}\{i}.json");
                     var Temp = JsonSerializer.Deserialize<List<Product>>(text);
 
                     MyTC = new MyThreadClass(Temp);
                     MyTC.MyAction = MyActionMethod;
 
-                    ThreadPool.QueueUserWorkItem(MyTC.Do, Temp);
-
+                    MyAct = new Action<object>(MyTC.Do);
+                    MyAct.BeginInvoke(Temp, (ar) =>
+                    {
+                        if (ar.IsCompleted)
+                        {
+                            TimerCounter++;
+                            if (TimerCounter == size)
+                            {
+                                Watch.Stop();
+                                Watch.Restart();
+                                timer.Stop();
+                                MessageBox.Show("END");
+                            }
+                        }
+                    }, null);
                 }
-                Watch.Stop();
-                timer.Stop();
             }
             else
             {
 
             }
         }
-        public int U { get; set; } = 0;
         private void Timer_Tick(object sender, EventArgs e)
         {
-            MessageBox.Show(U.ToString());
-            U++;
+            TimerTxt.Text = $"{Watch.Elapsed.Hours}:{Watch.Elapsed.Minutes}:{Watch.Elapsed.Seconds}";
         }
     }
 }
