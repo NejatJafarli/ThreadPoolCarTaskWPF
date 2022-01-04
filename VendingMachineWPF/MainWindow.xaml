@@ -142,11 +142,13 @@
                         <RowDefinition/>
                         <RowDefinition Height="0.1*"/>
                     </Grid.RowDefinitions>
-                    <ScrollViewer Name="Scroll">
-                        <ListBox Name="LB" Margin="0 5 0 0" ItemsSource="{Binding ProductsUC,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" HorizontalAlignment="Center">
+                    <ScrollViewer Name="Scroll"
+                  HorizontalAlignment="Stretch"
+                  VerticalScrollBarVisibility="Auto">
+                        <ListBox  Name="LB" Margin="0 5 0 0" ItemsSource="{Binding ProductsUC,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" HorizontalAlignment="Center">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel/>
+                                    <WrapPanel MouseWheel="LB_MouseWheel" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
@@ -160,13 +162,15 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                             <ColumnDefinition/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >Single</TextBlock>
                         <TextBlock Grid.Column="2" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >Multi</TextBlock>
                         <ToggleButton Name="TGbtn" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"></ToggleButton>
                         <TextBlock Grid.Column="3" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >Time</TextBlock>
                         <TextBlock Name="TimerTxt" Grid.Column="4" FontSize="20" HorizontalAlignment="Center" Margin="10 0 0 0" Foreground="#4B4B4B"  VerticalAlignment="Center" FontFamily="Cascadia Code" >00:00:00</TextBlock>
-                        <Button Grid.Column="5" Margin="10" FontSize="23" FontFamily="Cascadia Code" Click="Button_Click" >Start</Button>
+                        <Button Grid.Column="5" Margin="10" FontSize="23" FontFamily="Cascadia Code" Name="BtnCancel" Click="BtnCancel_Click" >Cancel</Button>
+                        <Button Grid.Column="6" Margin="10" FontSize="23" FontFamily="Cascadia Code" Name="BtnStart" Click="Button_Click" >Start</Button>
                     </Grid>
                 </Grid>
             </Grid>

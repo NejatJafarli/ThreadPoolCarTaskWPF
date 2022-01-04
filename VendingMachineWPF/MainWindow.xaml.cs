@@ -56,12 +56,16 @@ namespace VendingMachineWPF
             DataContext = this;
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+
+            BtnCancel.IsEnabled = false;
+            BtnStart.IsEnabled = true;
         }
         private void EscHandle(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
                 Application.Current.Shutdown();
         }
+        public CancellationTokenSource MyToken { get; set; }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
         private void ListViewItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) => Application.Current.Shutdown();
@@ -79,9 +83,13 @@ namespace VendingMachineWPF
             });
         }
         public int TimerCounter { get; set; } = 0;
-        public Action<object> MyAct { get; set; }
+        public Action<object> MyActForSingleCore { get; set; }
+        public Action<object, object> MyActForMultiCore { get; set; }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            BtnStart.IsEnabled = false;
+            BtnCancel.IsEnabled = true;
+            MyToken = new CancellationTokenSource();
             ProductsUC.Clear();
             var path = $@"C:\Users\{Environment.UserName}\Source\Repos\ThreadPoolCarTaskWPF\VendingMachineWPF\JsonFiles";
             var size = Directory.GetFiles(path).Length;
@@ -97,22 +105,31 @@ namespace VendingMachineWPF
                     MyTC = new MyThreadClass(Temp);
                     MyTC.MyAction = MyActionMethod;
 
-                    MyAct = new Action<object>(MyTC.DoForMultiCore);
-                    MyAct.BeginInvoke(Temp, (ar) =>
-                    {
-                        if (ar.IsCompleted)
-                        {
-                            TimerCounter++;
-                            if (TimerCounter == size)
-                            {
-                                Watch.Stop();
-                                Watch.Reset();
-                                timer.Stop();
-                                TimerCounter = 0;
-                                MessageBox.Show("END");
-                            }
-                        }
-                    }, null);
+                    MyActForMultiCore = new Action<object, object>(MyTC.DoForMultiCore);
+                    MyActForMultiCore.BeginInvoke(Temp, MyToken.Token, (ar) =>
+                     {
+                         if (ar.IsCompleted)
+                         {
+                             TimerCounter++;
+                             if (TimerCounter == size)
+                             {
+                                 Watch.Stop();
+                                 Watch.Reset();
+                                 timer.Stop();
+                                 TimerCounter = 0;
+                                 this.Dispatcher.Invoke(() =>
+                                 {
+                                     BtnCancel.IsEnabled = false;
+                                     BtnStart.IsEnabled = true;
+                                 });
+                                 if (MyToken.IsCancellationRequested)
+                                     MessageBox.Show("Canceled");
+                                 else
+                                     MessageBox.Show("END");
+
+                             }
+                         }
+                     }, null);
                 }
             }
             else
@@ -121,8 +138,8 @@ namespace VendingMachineWPF
                 Watch.Start();
                 MyTC = new MyThreadClass(path);
                 MyTC.MyAction = MyActionMethod;
-                MyAct =new Action<object>(MyTC.DoForSingleCore);
-                MyAct.BeginInvoke(null, (ar) =>
+                MyActForSingleCore = new Action<object>(MyTC.DoForSingleCore);
+                MyActForSingleCore.BeginInvoke(MyToken.Token, (ar) =>
                 {
 
                     if (ar.IsCompleted)
@@ -130,14 +147,40 @@ namespace VendingMachineWPF
                         Watch.Stop();
                         Watch.Reset();
                         timer.Stop();
-                        MessageBox.Show("END");
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            BtnCancel.IsEnabled = false;
+                            BtnStart.IsEnabled = true;
+                        });
+                        if (MyToken.IsCancellationRequested)
+                            MessageBox.Show("Canceled");
+                        else
+                            MessageBox.Show("END");
                     }
-                },null);
+                }, null);
             }
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
             TimerTxt.Text = $"{Watch.Elapsed.Hours}:{Watch.Elapsed.Minutes}:{Watch.Elapsed.Seconds}";
+        }
+
+        private void LB_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta < 0)
+                for (int i = 0; i < 5; i++)
+                    Scroll.LineDown();
+            else
+                for (int i = 0; i < 5; i++)
+                    Scroll.LineUp();
+        }
+
+        private void BtnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyToken.IsCancellationRequested == false)
+                MyToken.Cancel();
+            BtnStart.IsEnabled = true;
+            BtnCancel.IsEnabled = false;
         }
     }
 }

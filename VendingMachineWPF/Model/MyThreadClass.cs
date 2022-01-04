@@ -27,19 +27,25 @@ namespace VendingMachineWPF.Model
         {
             GC.SuppressFinalize(this);
         }
-        public void DoForMultiCore(object o)
+        public void DoForMultiCore(object o,object state)
         {
+            CancellationToken MyToken = (CancellationToken)state;
+
             var Cars = o as List<Product>;
 
             for (int k = 0; k < Cars.Count; k++)
             {
                 Thread.Sleep(300);
                 MyAction.Invoke(Cars[k]);
+                if (MyToken.IsCancellationRequested)
+                    break;
             }
         }
 
         public void DoForSingleCore(object o)
         {
+
+            CancellationToken MyToken = (CancellationToken)o;
             var Size = Directory.GetFiles(Path).Length;
             for (int i = 1; i <= Size; i++)
             {
@@ -49,6 +55,8 @@ namespace VendingMachineWPF.Model
                 {
                     Thread.Sleep(300);
                     MyAction.Invoke(Temp[k]);
+                    if (MyToken.IsCancellationRequested)
+                        break;
                 }
             }
         }
