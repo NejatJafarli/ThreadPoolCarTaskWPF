@@ -74,7 +74,7 @@ namespace VendingMachineWPF
                 temp.Window.Width = 220;
                 temp.Window.Height = 280;
                 ProductsUC.Add(temp);
-                for (int i = 0; i < 7; i++)
+                for (int i = 0; i < 10; i++)
                     Scroll.LineDown();
             });
         }
@@ -97,7 +97,7 @@ namespace VendingMachineWPF
                     MyTC = new MyThreadClass(Temp);
                     MyTC.MyAction = MyActionMethod;
 
-                    MyAct = new Action<object>(MyTC.Do);
+                    MyAct = new Action<object>(MyTC.DoForMultiCore);
                     MyAct.BeginInvoke(Temp, (ar) =>
                     {
                         if (ar.IsCompleted)
@@ -106,8 +106,9 @@ namespace VendingMachineWPF
                             if (TimerCounter == size)
                             {
                                 Watch.Stop();
-                                Watch.Restart();
+                                Watch.Reset();
                                 timer.Stop();
+                                TimerCounter = 0;
                                 MessageBox.Show("END");
                             }
                         }
@@ -116,7 +117,22 @@ namespace VendingMachineWPF
             }
             else
             {
+                timer.Start();
+                Watch.Start();
+                MyTC = new MyThreadClass(path);
+                MyTC.MyAction = MyActionMethod;
+                MyAct =new Action<object>(MyTC.DoForSingleCore);
+                MyAct.BeginInvoke(null, (ar) =>
+                {
 
+                    if (ar.IsCompleted)
+                    {
+                        Watch.Stop();
+                        Watch.Reset();
+                        timer.Stop();
+                        MessageBox.Show("END");
+                    }
+                },null);
             }
         }
         private void Timer_Tick(object sender, EventArgs e)
